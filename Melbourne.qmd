@@ -1,0 +1,103 @@
+---
+title: "Melbourne_housing"
+author: "WT"
+format: html
+editor: visual
+---
+
+
+```{r}
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(knitr)
+
+```
+
+
+```{r}
+# load the data 
+mh_data <- read.csv("C:/Users/tangw1/Desktop/ST558_repo/proj2/MELBOURNE_HOUSE_PRICES_LESS.csv")
+head(mh_data)
+```
+
+
+```{r}
+# Summary of quantitative variables
+quantitative_vars <- mh_data %>% select(Rooms, Price, Propertycount, Distance)
+summary(quantitative_vars)
+
+# Calculate means, medians, and standard deviations for quantitative variables
+quantitative_summary <- quantitative_vars %>% 
+  summarise(
+    mean_rooms = mean(Rooms, na.rm = TRUE),
+    median_rooms = median(Rooms, na.rm = TRUE),
+    sd_rooms = sd(Rooms, na.rm = TRUE),
+    
+    mean_price = mean(Price, na.rm = TRUE),
+    median_price = median(Price, na.rm = TRUE),
+    sd_price = sd(Price, na.rm = TRUE),
+    
+    mean_propertycount = mean(Propertycount, na.rm = TRUE),
+    median_propertycount = median(Propertycount, na.rm = TRUE),
+    sd_propertycount = sd(Propertycount, na.rm = TRUE),
+    
+    mean_distance = mean(Distance, na.rm = TRUE),
+    median_distance = median(Distance, na.rm = TRUE),
+    sd_distance = sd(Distance, na.rm = TRUE)
+  )
+quantitative_summary
+```
+
+
+
+
+
+
+```{r}
+# One-way contingency table for 'Type'
+table_type <- table(mh_data$Type)
+table_type
+# One-way contingency table for 'Regionname'
+table_region <- table(mh_data$Regionname)
+table_region
+
+```
+
+
+```{r}
+# Two-way contingency table between 'Type' and 'Regionname'
+two_way_table <- table(mh_data$Type, mh_data$Regionname)
+two_way_table
+
+```
+
+
+
+## 4. Numerical Summaries at Levels of Categorical Variables
+```{r}
+# Summary of 'Price' by 'Type'. There are missing values for 'price'; remove them before performing calcs.
+price_by_type <- mh_data %>% 
+  group_by(Type) %>% 
+  summarise(
+    mean_price = mean(Price, na.rm = TRUE),
+    median_price = median(Price, na.rm = TRUE),
+    sd_price = sd(Price, na.rm = TRUE)
+  )
+price_by_type
+
+# Summary of 'Distance' by 'Regionname'
+distance_by_region <- mh_data %>% 
+  group_by(Regionname) %>% 
+  summarise(
+    mean_distance = mean(Distance, na.rm = TRUE),
+    median_distance = median(Distance, na.rm = TRUE),
+    sd_distance = sd(Distance, na.rm = TRUE)
+  )
+distance_by_region
+```
+
+
+
+
+
