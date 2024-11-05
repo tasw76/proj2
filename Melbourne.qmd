@@ -3,6 +3,8 @@ title: "Melbourne_housing"
 author: "WT"
 format: html
 editor: visual
+editor_options: 
+  chunk_output_type: inline
 ---
 
 
@@ -28,6 +30,7 @@ quantitative_vars <- mh_data %>% select(Rooms, Price, Propertycount, Distance)
 summary(quantitative_vars)
 
 # Calculate means, medians, and standard deviations for quantitative variables
+# Rooms, Price, Propertycount, Distance
 quantitative_summary <- quantitative_vars %>% 
   summarise(
     mean_rooms = mean(Rooms, na.rm = TRUE),
@@ -51,9 +54,6 @@ quantitative_summary
 
 
 
-
-
-
 ```{r}
 # One-way contingency table for 'Type'
 table_type <- table(mh_data$Type)
@@ -73,10 +73,8 @@ two_way_table
 ```
 
 
-
-## 4. Numerical Summaries at Levels of Categorical Variables
 ```{r}
-# Summary of 'Price' by 'Type'. There are missing values for 'price'; remove them before performing calcs.
+# Summary of 'Price' by categorical 'Type'. There are some missing values for 'price'; need remove them before performing calculations
 price_by_type <- mh_data %>% 
   group_by(Type) %>% 
   summarise(
@@ -86,7 +84,7 @@ price_by_type <- mh_data %>%
   )
 price_by_type
 
-# Summary of 'Distance' by 'Regionname'
+# Summary of 'Distance' by categorical 'Regionname'
 distance_by_region <- mh_data %>% 
   group_by(Regionname) %>% 
   summarise(
@@ -98,6 +96,111 @@ distance_by_region
 ```
 
 
+```{r}
+# create several plots to investigate the data. 
+# First plot a graph with y-axis being the Price and x-axis being the distance to CBD
+# The graph shows that there is a significant negative association between CBD and price, and it is consistent among the types of house and unit, but weaker for townhouse type. 
+ggplot(mh_data, aes(x = Distance, y = Price, color = Type)) +
+  geom_point(alpha = 0.6) +
+  theme_minimal() +
+  labs(title = "Price vs. Distance by Property Type (",
+       x = "Distance to Central Business District (km)",
+       y = "Price") +
+  scale_y_continuous(labels = scales::comma)
+```
 
 
+```{r}
+# Second plot is a graph to show price distribution by region
+# y-axis represents price; x-axis represents the region. 
+# The graph shows that the highest price region is Southern Metropolitan, and the lowest price region is Western Victoria. 
+ggplot(mh_data, aes(x = Regionname, y = Price, fill = Type)) +
+  geom_boxplot(outlier.alpha = 0.3) +
+  theme_minimal() +
+  labs(title = "Price Distribution by Region and Property Type",
+       x = "Region",
+       y = "Price") +
+  scale_y_continuous(labels = scales::comma) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+
+
+```{r}
+# The third plot is a graph of the distribution of Property count by suburb and property type
+# The type of house has the highest property count while the type of townhouse has the lowest.
+ggplot(mh_data, aes(x = Propertycount)) +
+  geom_histogram(binwidth = 100, fill = "skyblue", color = "black", alpha = 0.7) +
+  facet_wrap(~ Type) +
+  theme_minimal() +
+  labs(title = "Distribution of Property Count by Suburb and Property Type",
+       x = "Property Count",
+       y = "Frequency")
+```
+
+```{r}
+# The fourth plot is a graph of the number of rooms by property type across regions. 
+ggplot(mh_data, aes(x = Rooms, fill = Type)) +
+  geom_bar(position = "dodge") +
+  facet_wrap(~ Regionname, scales = "free_y") +
+  theme_minimal() +
+  labs(title = "Number of Rooms by Property Type Across Regions",
+       x = "Number of Rooms",
+       y = "Count") +
+  scale_fill_brewer(palette = "Set2")
+
+
+```
+
+```{r}
+# Next plot is a graph of heatmap. 
+# Calculate the average price for each combination of Type and Regionname
+heatmap_data <- mh_data %>%
+  group_by(Type, Regionname) %>%
+  summarise(avg_price = mean(Price, na.rm = TRUE)) %>%
+  ungroup()
+
+# Create the heatmap
+ggplot(heatmap_data, aes(x = Regionname, y = Type, fill = avg_price)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient(low = "lightblue", high = "darkblue", name = "Avg Price") +
+  theme_minimal() +
+  labs(title = "Average Property Price by Type and Region",
+       x = "Region",
+       y = "Property Type") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+```
+
+
+```{r}
+# This graph shows average property price over time by type
+mh_data$Date <- as.Date(mh_data$Date, format = "%d/%m/%Y")
+
+# Calculate average price by Type and Date
+price_over_time <- mh_data %>%
+  group_by(Date, Type) %>%
+  summarise(avg_price = mean(Price, na.rm = TRUE))
+
+# Plot
+ggplot(price_over_time, aes(x = Date, y = avg_price, color = Type)) +
+  geom_line(size = 1) +
+  theme_minimal() +
+  labs(title = "Average Property Price Over Time by Type",
+       x = "Date",
+       y = "Average Price") +
+  scale_y_continuous(labels = scales::comma)
+```
+
+```{r}
+# The last plot is a graph showing the number of rooms by property type with price levels.
+ggplot(mh_data, aes(x = Type, y = Rooms, color = Price)) +
+  geom_jitter(width = 0.2, height = 0.2, alpha = 0.6) +
+  scale_color_gradient(low = "lightgreen", high = "darkgreen", name = "Price") +
+  theme_minimal() +
+  labs(title = "Number of Rooms by Property Type with Price Levels",
+       x = "Property Type",
+       y = "Rooms")
+```
 
