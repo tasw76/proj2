@@ -1,6 +1,7 @@
 # Put the tasks in .qmd into a shiny app. 
 library(shiny)
 library(dplyr)
+library(DT)
 
 # Load Melbourne housing dataset
 mh_data <- read.csv("C:/Users/tangw1/Desktop/ST558_repo/proj2/MELBOURNE_HOUSE_PRICES_LESS.csv")
@@ -29,12 +30,38 @@ ui <- fluidPage(
     ),
 
     mainPanel(
-      # Main panel to display the filtered data or subsequent outputs
-      textOutput("subset_message")
+      tabsetPanel(
+        # Add About tab 
+        tabPanel("About",
+                 h3("About the Melbourne Housing Data Subset App"),
+                 p("This app allows users to explore and analyze housing market data in Melbourne from 2016-18."),
+                 p("The dataset provides insights into property types, prices, distances to the central business district (CBD), and other characteristics of the Melbourne housing market."),
+                 p("Source: [Melbourne Housing Market Data](https://www.kaggle.com/datasets/anthonypino/melbourne-housing-market)"),
+                 
+                 h4("Sidebar Overview"),
+                 p("The sidebar contains filtering options to subset the data by property type and region, as well as range sliders for numeric variables price and distance."),
+                 
+                 h4("Tabs Overview"),
+                 p("Each tab in the app offers different functions. This 'About' tab describes the app, the dataset, and its purpose. The 'Data Download' tab allows users to download the subsetted data."),
+                 
+                 # Add an image related to Melbourne housing (image is saved in 'www' folder under working directory)
+                 img(src = "melbourneh.png", height = "300px", alt = "Melbourne Housing Market")
+        ),
+        
+        # Data Download tab
+        tabPanel("Data Download",
+                 h3("Download Subsetted Data"),
+                 DT::dataTableOutput("table"),
+                 downloadButton("downloadData", "Download Subsetted Data as CSV")
+#                p("This tab will allow users to download the subsetted data based on their selected filters.")
+                 
+        )
+      )
     )
   )
 )
 
+# Define server
 server <- function(input, output, session) {
   # Reactive values to store the filtered data
   filtered_data <- reactiveValues(data = mh_data)
@@ -68,12 +95,27 @@ server <- function(input, output, session) {
         between(get(input$numeric2), input$slider2[1], input$slider2[2])
       )
 
-    output$subset_message <- renderText({
-      paste("Data subset applied. Rows in subset:", nrow(filtered_data$data))
-    })
+# the following output originally coded is removed based on the second part of "App Requirements" where the subsetted data shall be displayed, not just the number of obs.
+  # show number of obs after user subsetting
+    # output$subset_message <- renderText({
+    #   paste("Data subset applied. Rows in subset:", nrow(filtered_data$data))
+    # })
   })
+  
+  # Display the subsetted dataset
+  output$table <- DT::renderDataTable({
+    DT::datatable(filtered_data$data)
+  })
+  # add a download button
+  output$downloadData <- downloadHandler(
+    filename = function() {
+      paste("subsetted_data", Sys.Date(), ".csv", sep = "")
+    },
+    content = function(file) {
+      write.csv(filtered_data$data, file, row.names = FALSE)
+    }
+  )
 }
-
 
 # Run the app
 shinyApp(ui = ui, server = server)
