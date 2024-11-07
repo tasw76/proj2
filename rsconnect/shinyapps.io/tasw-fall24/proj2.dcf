@@ -5,6 +5,6 @@ account: tasw-fall24
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 13260683
-bundleId: 9327503
+bundleId: 9327562
 url: https://tasw-fall24.shinyapps.io/proj2/
 version: 1
