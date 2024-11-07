@@ -5,7 +5,7 @@ library(DT)
 library(shinycssloaders)
 
 # Load Melbourne housing dataset
-mh_data <- read.csv("C:/Users/tangw1/Desktop/ST558_repo/proj2/MELBOURNE_HOUSE_PRICES_LESS.csv")
+mh_data <- read.csv("MELBOURNE_HOUSE_PRICES_LESS.csv") 
 
 # Define the UI function. I set up two widgets for categorical variables "type" and "region"; also included is a dynamic slider for the numeric variable "price"
 ui <- fluidPage(
