@@ -1,5 +1,6 @@
 # This R script puts the tasks completed in the Melbourne.qmd file into a shiny app. 
 library(shiny)
+library(ggplot2)
 library(dplyr)
 library(DT)
 library(shinycssloaders)
